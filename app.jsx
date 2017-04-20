@@ -14,11 +14,47 @@ var PLAYERS = [
     score: 7,
     id: 3
   }
-]
+];
+var nextId = 4;
+
+var AddPlayerForm = React.createClass({
+  propTypes: {
+    onAdd: React.PropTypes.func.isRequired,
+  },
+
+  getInitialState: function() {
+    return {
+      name: "",
+    };
+  },
+
+  onNameChange: function(event) {
+    // console.log('onNameChange', event.target.value);
+    this.setState({name: event.target.value});
+  },
+
+  onSubmit: function(event) {
+    event.preventDefault();
+    // console.log("You submitted your form!");
+    this.props.onAdd(this.state.name);
+    this.setState({name: ""});
+  },
+
+  render: function() {
+    return (
+      <div className="add-player-form">
+        <form onSubmit={this.onSubmit}>
+          <input type="text" value={this.state.name} onChange={this.onNameChange} />
+          <input type="submit" value="Add Player" />
+        </form>
+      </div>
+    );
+  },
+})
 
 function Stats(props) {
   var totalPlayers = props.players.length;
-  var totalPoints = props.players.reduce(function(total, player){
+  var totalPoints = props.players.reduce(function(total, player) {
     return total + player.score;
   }, 0)
 
@@ -60,6 +96,7 @@ function Player(props) {
   return (
     <div className="player">
       <div className="player-name">
+        <a className="remove-player" onClick={props.onRemove}>X</a>
         {props.name}
       </div>
       <div className="player-score">
@@ -73,6 +110,8 @@ Player.propTypes = {
   name: React.PropTypes.string.isRequired,
   score: React.PropTypes.number.isRequired,
   onScoreChange: React.PropTypes.func.isRequired,
+  onRemove: React.PropTypes.func.isRequired,
+
 }
 
 
@@ -121,6 +160,24 @@ var Application = React.createClass({
     this.setState(this.state);
   },
 
+  onPlayerAdd: function(name) {
+    // console.log(namee);
+    this.state.players.push({
+      name: name,
+      score: 0,
+      id: nextId,
+    });
+    this.setState(this.state);
+    nextId += 1;
+  },
+
+  onRemovePlayer: function(index) {
+    // console.log(index);
+    this.state.players.splice(index, 1);
+    // setState whenever you need to re-render, i.e. data has changed
+    this.setState(this.state)
+  },
+
   render: function() {
     return (
       <div className="scoreboard">
@@ -129,14 +186,17 @@ var Application = React.createClass({
         <div className="players">
           {this.state.players.map(function(player, index) {
             return (
+              // have to use .bind when using anonymous function syntax
               <Player
                 onScoreChange={function(delta) {this.onScoreChange(index, delta)}.bind(this)}
+                onRemove={function() {this.onRemovePlayer(index)}.bind(this)}
                 name={player.name}
                 score={player.score}
                 key={player.id} />
             );
           }.bind(this))}
         </div>
+        <AddPlayerForm onAdd={this.onPlayerAdd} />
       </div> // /scoreboard
     );
   },
