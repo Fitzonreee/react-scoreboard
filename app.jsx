@@ -17,6 +17,30 @@ var PLAYERS = [
 ];
 var nextId = 4;
 
+var Stopwatch = React.createClass({
+  getInitialState: function() {
+    return {
+      running: false,
+    }
+  },
+  render: function() {
+    var startStop;
+    if (this.state.running) {
+      startStop = <button>Stop</button>;
+    } else {
+      startStop = <button>Start</button>
+    }
+    return (
+      <div className="stopwatch">
+        <h2>Stopwatch</h2>
+        <div className="stopwatch-time">0</div>
+        <button>Start</button>
+        <button>Stop</button>
+      </div>
+    );
+  }
+});
+
 var AddPlayerForm = React.createClass({
   propTypes: {
     onAdd: React.PropTypes.func.isRequired,
@@ -83,6 +107,7 @@ function Header(props) {
     <div className="header">
       <Stats players={props.players} />
       <h1>{props.title}</h1>
+      <Stopwatch />
     </div>
   );
 }
