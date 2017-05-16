@@ -21,21 +21,62 @@ var Stopwatch = React.createClass({
   getInitialState: function() {
     return {
       running: false,
+      elapsedTime: 0,
+      previousTime: 0,
     }
   },
-  render: function() {
-    var startStop;
+
+  componentDidMount: function() {
+    this.interval = setInterval(this.onTick, 100);
+  },
+
+  componentWillUnmount: function() {
+    clearInveral(this.interval);
+  },
+
+  onTick: function() {
+    // console.log('onTick');
     if (this.state.running) {
-      startStop = <button>Stop</button>;
-    } else {
-      startStop = <button>Start</button>
+      var now = Date.now();
+      this.setState({
+        previousTime: now,
+        elapsedTime: this.state.elapsedTime + (now - this.state.previousTime),
+      })
     }
+  },
+
+  onStart: function() {
+    this.setState({
+      running: true,
+      previousTime: Date.now(),
+    });
+  },
+
+  onStop: function() {
+    this.setState({ running: false });
+  },
+
+  onReset: function() {
+    this.setState({
+      elapsedTime: 0,
+      previousTime: Date.now(),
+    });
+  },
+
+  render: function() {
+
+    var seconds = Math.floor(this.state.elapsedTime / 1000);
+
     return (
       <div className="stopwatch">
         <h2>Stopwatch</h2>
-        <div className="stopwatch-time">0</div>
-        <button>Start</button>
-        <button>Stop</button>
+        <div className="stopwatch-time">{ seconds }</div>
+        { this.state.running ?
+          <button onClick={this.onStop}>Stop</button>
+          :
+          <button onClick={this.onStart}>Start</button>
+        }
+        <button onClick={this.onReset}>Reset</button>
       </div>
     );
   }
